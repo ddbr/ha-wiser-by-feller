@@ -21,7 +21,7 @@
   "requirements": [
     "aiowiserbyfeller==2.2.2"
   ],
-  "version": "1.0.0-0",
+  "version": "1.0.0",
   "zeroconf": [
     {
       "type": "_http._tcp.local.",
