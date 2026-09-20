@@ -22,6 +22,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .coordinator import WiserCoordinator
 from .entity import WiserEntity
 from .util import (
+    TILT_MAX_STEPS,
     cover_position_to_wiser,
     cover_tilt_to_wiser,
     wiser_to_cover_position,
@@ -265,7 +266,7 @@ class WiserTiltableCoverEntity(WiserCoverEntity, CoverEntity):
 
     async def async_open_cover_tilt(self, **kwargs):
         """Open the cover tilt."""
-        await self._load.async_set_tilt(9)
+        await self._load.async_set_tilt(TILT_MAX_STEPS)
 
     async def async_close_cover_tilt(self, **kwargs):
         """Close the cover tilt."""
