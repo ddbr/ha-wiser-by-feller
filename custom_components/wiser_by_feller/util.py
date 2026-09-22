@@ -107,6 +107,8 @@ def cover_position_to_wiser(cover_position: int) -> int:
     return (100 - cover_position) * 100
 
 TILT_MAX_STEPS = 7
+
+
 def wiser_to_cover_tilt(value: int | None) -> int | None:
     """Convert a Wiser cover tilt (0..TILT_MAX_STEPS) to a HA cover tilt (0..100)."""
     if value is None:
