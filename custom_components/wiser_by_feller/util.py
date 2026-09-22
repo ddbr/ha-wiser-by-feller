@@ -106,19 +106,41 @@ def cover_position_to_wiser(cover_position: int) -> int:
     """Convert a HA cover position (100..0) to a Wiser cover position (0..10000)."""
     return (100 - cover_position) * 100
 
-TILT_MAX_STEPS = 7
+
+# Number of Wiser tilt steps (0..MAX_TILT_STEPS) the µGateway supports.
+MAX_TILT_STEPS = 9
+
+# Default number of tilt steps used for a full tilt in Home Assistant, unless
+# overridden per device via the "Kippschritte" number entity.
+DEFAULT_TILT_STEPS = 7
+
+# Per-device tilt steps, keyed by the raw unique id of the load
+# ("<device-id>_<channel>"). Filled by the number platform.
+_tilt_steps: dict[str, int] = {}
 
 
-def wiser_to_cover_tilt(value: int | None) -> int | None:
-    """Convert a Wiser cover tilt (0..TILT_MAX_STEPS) to a HA cover tilt (0..100)."""
+def get_tilt_steps(key: str) -> int:
+    """Return the configured number of tilt steps for a load."""
+    return _tilt_steps.get(key, DEFAULT_TILT_STEPS)
+
+
+def set_tilt_steps(key: str, steps: float) -> int:
+    """Store the number of tilt steps for a load (clamped to 1..MAX_TILT_STEPS)."""
+    value = max(1, min(MAX_TILT_STEPS, round(steps)))
+    _tilt_steps[key] = value
+    return value
+
+
+def wiser_to_cover_tilt(value: int | None, steps: int = MAX_TILT_STEPS) -> int | None:
+    """Convert a Wiser cover tilt (0..steps) to a HA cover tilt (0..100)."""
     if value is None:
         return None
-    return min(100, int(value / TILT_MAX_STEPS * 100)
+    return min(100, round(value / steps * 100))
 
 
-def cover_tilt_to_wiser(cover_position: int) -> int:
-    """Convert a HA cover tilt (0..100) to a Wiser cover tilt (0..TILT_MAX_STEPS)."""
-    return round(cover_position / 100 * TILT_MAX_STEPS)
+def cover_tilt_to_wiser(cover_position: int, steps: int = MAX_TILT_STEPS) -> int:
+    """Convert a HA cover tilt (0..100) to a Wiser cover tilt (0..steps)."""
+    return round(cover_position / 100 * steps)
 
 
 def hex_to_rbg_tuple(hexval: str) -> tuple[int, ...]:
