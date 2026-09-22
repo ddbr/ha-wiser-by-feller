@@ -22,9 +22,9 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .coordinator import WiserCoordinator
 from .entity import WiserEntity
 from .util import (
-    TILT_MAX_STEPS,
     cover_position_to_wiser,
     cover_tilt_to_wiser,
+    get_tilt_steps,
     wiser_to_cover_position,
     wiser_to_cover_tilt,
 )
@@ -262,11 +262,16 @@ class WiserTiltableCoverEntity(WiserCoverEntity, CoverEntity):
         """Return current position of cover tilt. None is unknown, 0 is closed, 100 is fully open."""
         if self._load.state is None or self._load.state.get("tilt") is None:
             return None
-        return wiser_to_cover_tilt(self._load.state["tilt"])
+        return wiser_to_cover_tilt(self._load.state["tilt"], self._tilt_steps)
+
+    @property
+    def _tilt_steps(self) -> int:
+        """Number of Wiser tilt steps configured for this cover."""
+        return get_tilt_steps(self.raw_unique_id)
 
     async def async_open_cover_tilt(self, **kwargs):
         """Open the cover tilt."""
-        await self._load.async_set_tilt(TILT_MAX_STEPS)
+        await self._load.async_set_tilt(self._tilt_steps)
 
     async def async_close_cover_tilt(self, **kwargs):
         """Close the cover tilt."""
@@ -274,7 +279,7 @@ class WiserTiltableCoverEntity(WiserCoverEntity, CoverEntity):
 
     async def async_set_cover_tilt_position(self, **kwargs):
         """Move the cover tilt to a specific position."""
-        tilt = cover_tilt_to_wiser(kwargs.get(ATTR_TILT_POSITION))
+        tilt = cover_tilt_to_wiser(kwargs.get(ATTR_TILT_POSITION), self._tilt_steps)
         await self._load.async_set_tilt(tilt)
 
     async def async_stop_cover_tilt(self, **kwargs):
