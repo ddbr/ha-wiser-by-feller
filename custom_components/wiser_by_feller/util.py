@@ -111,12 +111,12 @@ def wiser_to_cover_tilt(value: int | None) -> int | None:
     """Convert a Wiser cover tilt (0..TILT_MAX_STEPS) to a HA cover tilt (0..100)."""
     if value is None:
         return None
-    return int(value / TILT_MAX_STEPS * 100)
+    return min(100, int(value / TILT_MAX_STEPS * 100)
 
 
 def cover_tilt_to_wiser(cover_position: int) -> int:
     """Convert a HA cover tilt (0..100) to a Wiser cover tilt (0..TILT_MAX_STEPS)."""
-    return int(cover_position / 100 * TILT_MAX_STEPS)
+    return round(cover_position / 100 * TILT_MAX_STEPS)
 
 
 def hex_to_rbg_tuple(hexval: str) -> tuple[int, ...]:
